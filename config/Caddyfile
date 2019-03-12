@@ -1,0 +1,15 @@
+<YOUR-SITE-NAME> {
+    root /var/www/html
+    gzip
+    fastcgi / wordpress:9000 php
+    rewrite {
+        if {path} not_match ^\/wp-admin
+        to {path} {path}/ /index.php?_url={uri}
+    }
+    log stdout
+    errors stderr
+}
+
+*:80 {
+    redir / https://<YOUR-SITE-NAME>/ 307
+}

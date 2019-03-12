@@ -1,0 +1,53 @@
+version: '2'
+
+services:
+  db:
+    image: mysql:5.7
+    container_name: mysql
+    restart: always
+
+    volumes:
+      - "./mysql:/var/lib/mysql"
+
+    environment:
+      MYSQL_ROOT_PASSWORD: wordpress
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: wordpress
+
+  wordpress:
+
+    image: wordpress:php7.3-fpm-alpine
+    container_name: wordpress
+    restart: always
+
+    depends_on:
+      - db
+    links:
+      - db
+
+    volumes:
+      - "./www:/var/www/html"
+      - "./config/php.ini:/usr/local/etc/php/conf.d/custom.ini"
+
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_PASSWORD: wordpress
+
+  server:
+
+    image: bushrangers/alpine-caddy:latest
+    container_name: caddy
+    restart: always
+
+    ports:
+      - "80:80"
+      - "443:443"
+    
+    links:
+      - wordpress
+    
+    volumes:
+      - "./config/Caddyfile:/etc/Caddyfile"
+    volumes_from:
+      - wordpress
